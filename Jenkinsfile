@@ -27,7 +27,7 @@ spec:
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         IMAGE_TAG = "latest"
     }
 
