@@ -51,7 +51,7 @@ spec:
                         
                         // Sử dụng đường dẫn tương đối . cho context
                         sh """
-                        /kaniko/executor --context ${env.WORKSPACE} \
+                        /kaniko/executor --context ${env.WORKSPACE}/${params.SERVICE_NAME} \
                             --dockerfile ${env.WORKSPACE}/${dockerfilePath} \
                             --destination ${fullImageName}
                         """
