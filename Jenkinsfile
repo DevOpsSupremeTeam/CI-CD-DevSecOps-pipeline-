@@ -44,15 +44,15 @@ spec:
             steps {
                 container('kaniko') {
                     script {
-                        def dockerfilePath = "${params.SERVICE_NAME}.Dockerfile"
+                        def dockerfilePath = "${params.SERVICE_NAME}/Dockerfile"
                         def fullImageName = "${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${IMAGE_TAG}"
                         
                         echo "Kaniko đang build: ${fullImageName}"
                         
                         // Sử dụng đường dẫn tương đối . cho context
                         sh """
-                        /kaniko/executor --context \$(pwd) \
-                            --dockerfile ${dockerfilePath} \
+                        /kaniko/executor --context ${env.WORKSPACE} \
+                            --dockerfile ${env.WORKSPACE}/${dockerfilePath} \
                             --destination ${fullImageName}
                         """
                     }
