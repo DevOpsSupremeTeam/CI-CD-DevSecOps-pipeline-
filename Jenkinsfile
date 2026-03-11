@@ -11,17 +11,15 @@ spec:
     command: ['sleep']
     args: ['9999999']
     volumeMounts:
-    - name: kaniko-secret
+    - name: kaniko-secret-volume  # Tên này phải giống ở dưới
       mountPath: /kaniko/.docker
   volumes:
-  - name: kaniko-secret
-    projected:
-      sources:
-      - secret:
-          name:  # Tên Secret chứa DockerHub Auth của bạn
-          items:
-          - key: .dockerconfigjson
-            path: config.json
+  - name: kaniko-secret-volume    # Tên này phải giống ở trên
+    secret:
+      secretName: regcred         # Tên Secret bạn đã tạo bằng lệnh kubectl
+      items:
+      - key: .dockerconfigjson
+        path: config.json
 """
         }
     }
@@ -32,7 +30,6 @@ spec:
     }
 
     environment {
-        // Với Kaniko, chúng ta không dùng login bằng lệnh sh nữa mà dùng file config mount ở trên
         IMAGE_TAG = "latest"
     }
 
@@ -47,14 +44,14 @@ spec:
             steps {
                 container('kaniko') {
                     script {
-                        def dockerfilePath = "${params.SERVICE_NAME}/Dockerfile"
+                        def dockerfilePath = "${params.SERVICE_NAME}.Dockerfile"
                         def fullImageName = "${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${IMAGE_TAG}"
                         
-                        echo "Kaniko đang build và tự động đẩy image: ${fullImageName}"
+                        echo "Kaniko đang build: ${fullImageName}"
                         
-                        // Kaniko tự thực hiện cả build và push mà không cần Docker Daemon
+                        // Sử dụng đường dẫn tương đối . cho context
                         sh """
-                        /kaniko/executor --context `pwd` \
+                        /kaniko/executor --context \$(pwd) \
                             --dockerfile ${dockerfilePath} \
                             --destination ${fullImageName}
                         """
