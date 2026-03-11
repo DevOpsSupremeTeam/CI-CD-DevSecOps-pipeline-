@@ -18,7 +18,7 @@ spec:
     projected:
       sources:
       - secret:
-          name: regcred # Tên Secret chứa DockerHub Auth của bạn
+          name:  # Tên Secret chứa DockerHub Auth của bạn
           items:
           - key: .dockerconfigjson
             path: config.json
@@ -47,7 +47,7 @@ spec:
             steps {
                 container('kaniko') {
                     script {
-                        def dockerfilePath = "${params.SERVICE_NAME}.Dockerfile"
+                        def dockerfilePath = "${params.SERVICE_NAME}/Dockerfile"
                         def fullImageName = "${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${IMAGE_TAG}"
                         
                         echo "Kaniko đang build và tự động đẩy image: ${fullImageName}"
