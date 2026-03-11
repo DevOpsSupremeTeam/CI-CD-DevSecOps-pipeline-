@@ -6,19 +6,22 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: docker-cli
-    image: docker:24.0.5-cli
-    command: ['cat']
-    tty: true
-    securityContext:
-      privileged: true
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    command: ['sleep']
+    args: ['9999999']
     volumeMounts:
-    - mountPath: /var/run/docker.sock
-      name: docker-sock
+    - name: kaniko-secret
+      mountPath: /kaniko/.docker
   volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
+  - name: kaniko-secret
+    projected:
+      sources:
+      - secret:
+          name: regcred # Tên Secret chứa DockerHub Auth của bạn
+          items:
+          - key: .dockerconfigjson
+            path: config.json
 """
         }
     }
@@ -29,7 +32,7 @@ spec:
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        // Với Kaniko, chúng ta không dùng login bằng lệnh sh nữa mà dùng file config mount ở trên
         IMAGE_TAG = "latest"
     }
 
@@ -40,26 +43,21 @@ spec:
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build & Push with Kaniko') {
             steps {
-                container('docker-cli') {
+                container('kaniko') {
                     script {
                         def dockerfilePath = "${params.SERVICE_NAME}.Dockerfile"
-                        echo "Đang build image cho service: ${params.SERVICE_NAME} bằng file ${dockerfilePath}"
-                        sh "docker build -t ${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${IMAGE_TAG} -f ${dockerfilePath} ."
-                    }
-                }
-            }
-        }
-
-        stage('Push to DockerHub') {
-            steps {
-                container('docker-cli') {
-                    script {
-                        sh "echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin"
-                        sh "docker push ${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${IMAGE_TAG}"
+                        def fullImageName = "${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${IMAGE_TAG}"
                         
-                        echo "Đã đẩy thành công image ${params.SERVICE_NAME} lên DockerHub"
+                        echo "Kaniko đang build và tự động đẩy image: ${fullImageName}"
+                        
+                        // Kaniko tự thực hiện cả build và push mà không cần Docker Daemon
+                        sh """
+                        /kaniko/executor --context `pwd` \
+                            --dockerfile ${dockerfilePath} \
+                            --destination ${fullImageName}
+                        """
                     }
                 }
             }
