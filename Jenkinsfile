@@ -11,12 +11,12 @@ spec:
     command: ['sleep']
     args: ['9999999']
     volumeMounts:
-    - name: kaniko-secret-volume  # Tên này phải giống ở dưới
-      mountPath: /kaniko/.docker
+    - name: kaniko-secret-volume 
+      mountPath: /kaniko/.docker 
   volumes:
-  - name: kaniko-secret-volume    # Tên này phải giống ở trên
+  - name: kaniko-secret-volume   
     secret:
-      secretName: regcred         # Tên Secret bạn đã tạo bằng lệnh kubectl
+      secretName: regcred    
       items:
       - key: .dockerconfigjson
         path: config.json
@@ -46,15 +46,13 @@ spec:
                     script {
                         def dockerfilePath = "${params.SERVICE_NAME}/Dockerfile"
                         def fullImageName = "${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${IMAGE_TAG}"
-                        
+                        # sử dụng Kaniko để build và push image lên DockerHub
                         echo "Kaniko đang build: ${fullImageName}"
-                        
-                        // Sử dụng đường dẫn tương đối . cho context
                         sh """
                         /kaniko/executor --context ${env.WORKSPACE}/${params.SERVICE_NAME} \
                             --dockerfile ${env.WORKSPACE}/${dockerfilePath} \
                             --destination ${fullImageName}
-                        """
+                        """ 
                     }
                 }
             }
