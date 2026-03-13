@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nt548
+spec:
+  destination:
+    namespace: nt548
+    server: https://kubernetes.default.svc
+  source:
+    path: /k8s-yaml
+    repoURL: https://github.com/catarena2608/CI-CD-DevSecOps-pipeline-.git
+    targetRevision: HEAD
+  sources: []
+  project: nt548
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
