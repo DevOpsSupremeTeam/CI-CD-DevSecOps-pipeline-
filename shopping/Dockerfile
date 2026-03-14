@@ -1,4 +1,4 @@
-FROM node
+FROM node:25-alpine3.22
 
 WORKDIR /app/shopping
 

@@ -7,7 +7,7 @@ spec:
     namespace: nt548
     server: https://kubernetes.default.svc
   source:
-    path: /k8s-yaml
+    path: k8s-yaml
     repoURL: https://github.com/catarena2608/CI-CD-DevSecOps-pipeline-.git
     targetRevision: HEAD
   sources: []

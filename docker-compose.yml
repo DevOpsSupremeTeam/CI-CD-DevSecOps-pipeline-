@@ -1,18 +1,32 @@
-version: "3"
+version: "3.8" # Nâng cấp version để hỗ trợ đầy đủ các tính năng healthcheck
+
 services:
   nosql-db:
-    image: mvertes/alpine-mongo
+    image: mongo:latest # Khuyên dùng bản chính thức để ổn định hơn
     ports:
       - "27018:27017"
     container_name: nosql-db
     volumes:
       - ./db/:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
-    image: rabbitmq:alpine
+    image: rabbitmq:3-management-alpine # Thêm bản management để có UI cổng 15672
     container_name: rabbitmq
+    environment:
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit frame_max 131072 -rabbit heartbeat 60
     ports:
       - '5672:5672'
+      - '15672:15672' # Truy cập UI: guest/guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   products:
     build:
@@ -23,14 +37,16 @@ services:
       - "8002:8002"
     restart: always
     depends_on:
-      - "nosql-db"
-      - "rabbitmq"
+      nosql-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     volumes:
-      - .:/app
-      - /app/products/node_modules
-
+      - ./products:/app/products # Map chính xác vào thư mục app
+      - /app/products/node_modules # Giữ lại node_modules trong container
     env_file:
       - ./products/.env.dev
+
   shopping:
     build:
       dockerfile: Dockerfile
@@ -40,13 +56,16 @@ services:
       - "8003:8003"
     restart: always
     depends_on:
-      - "nosql-db"
-      - "rabbitmq"
+      nosql-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     volumes:
-      - .:/app
+      - ./shopping:/app/shopping
       - /app/shopping/node_modules
     env_file:
       - ./shopping/.env.dev
+
   customer:
     build:
       dockerfile: Dockerfile
@@ -56,13 +75,16 @@ services:
       - "8001:8001"
     restart: always
     depends_on:
-      - "nosql-db"
-      - "rabbitmq"
+      nosql-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     volumes:
-      - .:/app/
+      - ./customer:/app/customer
       - /app/customer/node_modules
     env_file:
       - ./customer/.env.dev
+
   nginx-proxy:
     build:
       dockerfile: Dockerfile
