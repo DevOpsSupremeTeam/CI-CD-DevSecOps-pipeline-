@@ -1,26 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:debug
-    command: ['sleep']
-    args: ['9999999']
-    volumeMounts:
-    - name: kaniko-secret-volume 
-      mountPath: /kaniko/.docker 
-  volumes:
-  - name: kaniko-secret-volume   
-    secret:
-      secretName: regcred    
-      items:
-      - key: .dockerconfigjson
-        path: config.json
-"""
+            yaml readTrusted('worker.yaml')
         }
     }
 
@@ -30,7 +11,7 @@ spec:
     }
 
     environment {
-        IMAGE_TAG = "latest"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -40,22 +21,59 @@ spec:
             }
         }
 
+        stage('Nodejs Audit & Unit Test') {
+            steps {
+                container('nodejs') {
+                    script {
+                        dir("${params.SERVICE_NAME}") {
+                            echo "--- Đang chạy npm install cho ${params.SERVICE_NAME} ---"
+                            sh 'npm install'
+                            
+                            echo "--- Đang chạy Security Audit ---"
+                            sh 'npm audit --audit-level=high'
+                            
+                            echo "--- Đang chạy Unit Test ---"
+                            sh 'npm test'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Security Scan Source (Trivy)') {
+            steps {
+                container('trivy') {
+                    echo "--- Quét lỗ hổng hệ thống và thư viện ---"
+                    sh "trivy fs --severity HIGH,CRITICAL ${params.SERVICE_NAME}"
+                }
+            }
+        }
+
         stage('Build & Push with Kaniko') {
             steps {
                 container('kaniko') {
                     script {
-                        def dockerfilePath = "${params.SERVICE_NAME}/Dockerfile"
                         def fullImageName = "${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${IMAGE_TAG}"
-                        # sử dụng Kaniko để build và push image lên DockerHub
-                        echo "Kaniko đang build: ${fullImageName}"
+                        
+                        echo "--- Kaniko đang build & push: ${fullImageName} ---"
+
                         sh """
                         /kaniko/executor --context ${env.WORKSPACE}/${params.SERVICE_NAME} \
-                            --dockerfile ${env.WORKSPACE}/${dockerfilePath} \
+                            --dockerfile ${env.WORKSPACE}/${params.SERVICE_NAME}/Dockerfile \
                             --destination ${fullImageName}
                         """ 
                     }
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo "Build thành công service: ${params.SERVICE_NAME}"
+        }
+        failure {
+            echo "Build thất bại, kiểm tra lại log của container tương ứng."
         }
     }
 }
