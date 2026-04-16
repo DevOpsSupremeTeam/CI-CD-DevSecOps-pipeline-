@@ -32,9 +32,11 @@ ingress:
       paths:
          - path: /customer
            serviceName: customer-service 
+           pathType: Prefix
            port: 80
          - path: /shopping
            serviceName: shopping-service
+           pathType: Prefix
            port: 80
          - path: /
            serviceName: products-service
