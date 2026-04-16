@@ -6,7 +6,7 @@ shopping:
 customer:
   replicaCount: 2
   image:
-    repository: /catarena/customer
+    repository: catarena/customer
     tag: latest
 products:
   replicaCount: 2

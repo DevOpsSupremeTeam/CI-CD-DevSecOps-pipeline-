@@ -5,7 +5,7 @@ metadata:
   labels:
     app: customer
 spec:
-  replicas: {{ .Values.customer.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
       app: customer
@@ -16,21 +16,9 @@ spec:
     spec:
       containers:
       - name: customer
-        image: "{{- .Values.customer.image.repository }}: {{- .Values.customer.image.tag }}"
+        image: "catarena/customer:latest"
         ports:
         - containerPort: 8001
-        env:
-        - name: PORT
-          valueFrom:
-            ConfigMapKeyRef:
-              name: nt548-configmap-general
-              key: CUSTOMER_PORT
-        envFrom:
-        - configMapRef:
-            name: nt548-configmap-general
-        envFrom:
-        - secretRef:
-            name: nt548-secret-general
 ---
 apiVersion: v1
 kind: Service
