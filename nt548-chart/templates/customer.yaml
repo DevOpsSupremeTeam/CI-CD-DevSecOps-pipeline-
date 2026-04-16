@@ -22,13 +22,12 @@ spec:
         env:
         - name: PORT
           valueFrom:
-            ConfigMapKeyRef:
+            configMapKeyRef:
               name: nt548-configmap-general
               key: CUSTOMER_PORT
         envFrom:
         - configMapRef:
             name: nt548-configmap-general
-        envFrom:
         - secretRef:
             name: nt548-secret-general
 ---
