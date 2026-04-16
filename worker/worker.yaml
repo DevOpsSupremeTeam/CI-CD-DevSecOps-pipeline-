@@ -3,6 +3,7 @@ kind: Pod
 metadata:
   labels:
     app: jenkins-agent
+  namespace: jenkins-agents
 spec:
   containers:
   # 1. Container cho Node.js: Dùng để cài lib, chạy test
