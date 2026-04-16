@@ -8,14 +8,14 @@ spec:
   containers:
   # 1. Container cho Node.js: Dùng để cài lib, chạy test
   - name: nodejs
-    image: node:18-alpine
+    image: node:25-alpine3.22:latest
     command:
     - cat
     tty: true
 
   # 2. Container cho Trivy: Dùng để scan lỗ hổng bảo mật
   - name: trivy
-    image: aquasec/trivy:latest
+    image: aquasec/trivy:0.49.1
     command:
     - cat
     tty: true
