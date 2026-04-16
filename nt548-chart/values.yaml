@@ -43,5 +43,3 @@ ingress:
 
 service:
   port: 80
-
-fullnameOverride: "nt548"
