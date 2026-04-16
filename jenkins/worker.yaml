@@ -8,7 +8,7 @@ spec:
   containers:
   # 1. Container cho Node.js: Dùng để cài lib, chạy test
   - name: nodejs
-    image: node:25-alpine3.22:latest
+    image: node:25-alpine3.22
     command:
     - cat
     tty: true
