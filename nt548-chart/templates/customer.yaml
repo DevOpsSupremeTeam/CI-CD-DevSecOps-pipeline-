@@ -23,7 +23,7 @@ spec:
         - name: PORT
           valueFrom:
             configMapKeyRef:
-              name: nt548-configmap-general
+              name: nt548-configmap
               key: CUSTOMER_PORT
         envFrom:
         - configMapRef:
