@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: customer
-        image: {{- .Values.customer.image.repository }}: {{- .Values.customer.image.tag }}
+        image: "{{- .Values.customer.image.repository }}: {{- .Values.customer.image.tag }}"
         ports:
         - containerPort: 8001
 ---

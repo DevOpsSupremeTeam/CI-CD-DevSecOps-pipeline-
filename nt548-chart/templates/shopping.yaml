@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: shopping
-        image: {{- .Values.shopping.image.repository }}: {{- .Values.shopping.image.tag }}
+        image: "{{- .Values.shopping.image.repository }}: {{- .Values.shopping.image.tag }}"
         ports:
         - containerPort: 8003
 ---
