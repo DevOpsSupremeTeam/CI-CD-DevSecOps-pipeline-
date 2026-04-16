@@ -2,17 +2,17 @@ shopping:
   replicaCount: 2
   image:
     repository: catarena/shopping
-    tag: latest
+    tag: 12
 customer:
   replicaCount: 2
   image:
     repository: catarena/customer
-    tag: latest
+    tag: 11
 products:
   replicaCount: 2
   image:
     repository: catarena/products
-    tag: latest
+    tag: 14
 
 # Cấu hình Ingress
 ingress:
