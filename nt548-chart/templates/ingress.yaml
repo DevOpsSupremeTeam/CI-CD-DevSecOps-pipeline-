@@ -2,9 +2,9 @@
   apiVersion: networking.k8s.io/v1
   kind: Ingress
   metadata:
-    name: {{ include "nt548-chart.fullname" . }}
+    name: ingress-nt548
     labels:
-      {{- include "nt548-chart.labels" . | nindent 4 }}
+      app: ingress-nt548
     {{- with .Values.ingress.annotations }}
     annotations:
       {{- toYaml . | nindent 4 }}
