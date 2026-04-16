@@ -12,7 +12,7 @@ products:
   replicaCount: 2
   image:
     repository: catarena
-    tag: 
+    tag: latest
 gateway:
   image:
     repository: catarena
@@ -39,6 +39,7 @@ ingress:
          - path: /
            serviceName: products-service
            pathType: Prefix
+           port: 80
 
 service:
   port: 80
