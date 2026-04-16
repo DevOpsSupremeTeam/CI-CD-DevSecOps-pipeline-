@@ -21,21 +21,22 @@ ingress:
   
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 
   hosts:
     - host: nt548.com
       paths:
-         - path: /customer
+         - path: /customer(/|$)(.*)
            serviceName: customer-service 
-           pathType: Prefix
+           pathType: ImplementationSpecific
            port: 80
-         - path: /shopping
+         - path: /shopping(/|$)(.*)
            serviceName: shopping-service
-           pathType: Prefix
+           pathType: ImplementationSpecific
            port: 80
-         - path: /
+         - path: /products(/|$)(.*)
            serviceName: products-service
-           pathType: Prefix
+           pathType: ImplementationSpecific
            port: 80
 
 service:
