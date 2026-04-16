@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            yaml readTrusted('worker.yaml')
+            yaml readTrusted('worker/worker.yaml')
         }
     }
 
