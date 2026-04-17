@@ -24,7 +24,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: nt548-configmap
-              key: CUSTOMER_PORT
+              key: PRODUCTS_PORT
         envFrom:
         - configMapRef:
             name: nt548-configmap-general
