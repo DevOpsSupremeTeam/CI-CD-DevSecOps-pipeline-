@@ -5,5 +5,5 @@ metadata:
   namespace: nt548
 data:
   EXCHANGE_NAME: 'ONLINE_STORE'
-  MONGODB_URI: 'mongodb://mongo-service'
+  MONGODB_URI: 'mongodb://admin:password123@mongo-service:27017/admin?authSource=admin'
   MSG_QUEUE_URL: 'amqp://rabbitmq-service'
