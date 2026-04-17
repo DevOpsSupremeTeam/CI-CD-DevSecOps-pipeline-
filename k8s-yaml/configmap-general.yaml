@@ -4,5 +4,5 @@ metadata:
   name: nt548-configmap-general
 data:
   EXCHANGE_NAME: 'ONLINE_STORE'
-  MONGODB_URI: 'mongodb://mongodb-service'
+  MONGODB_URI: 'mongodb://admin:password123@mongo-service:27017/admin?authSource=admin'
   MSG_QUEUE_URL: 'amqp://rabbitmq-service'
