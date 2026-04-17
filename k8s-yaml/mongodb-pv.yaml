@@ -11,7 +11,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: manual
   local:
-    path: /mnt/data/mongodb
+    path: /data/mongodb
   nodeAffinity:
     required:
       nodeSelectorTerms:
