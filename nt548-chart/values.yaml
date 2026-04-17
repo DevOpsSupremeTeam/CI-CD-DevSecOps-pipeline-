@@ -34,7 +34,7 @@ ingress:
            serviceName: shopping-service
            pathType: ImplementationSpecific
            port: 80
-         - path: /products(/|$)(.*)
+         - path: /
            serviceName: products-service
            pathType: ImplementationSpecific
            port: 80
