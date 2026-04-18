@@ -17,6 +17,13 @@ spec:
       containers:
       - name: customer
         image: "{{- .Values.customer.image.repository }}: {{- .Values.customer.image.tag }}"
+        resources:
+          requests:
+            cpu: "250m"       # 0.02 Core - Chỉ đủ để duy trì nhịp thở
+            memory: "512Mi"   # Rất ít, đủ để Node.js khởi động
+          limits:
+            cpu: "500m"      # Giới hạn cực thấp để tránh treo cả máy ảo Azure
+            memory: "1024Mi"
         ports:
         - containerPort: 8001
         env:
