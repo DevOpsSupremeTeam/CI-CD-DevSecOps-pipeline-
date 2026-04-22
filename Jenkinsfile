@@ -49,6 +49,12 @@ pipeline {
             }
         }
 
+        stage('Scan Source Code (SonarQube)') {
+            steps {
+                
+            }
+        }
+
         stage('Build & Push with Kaniko') {
             steps {
                 container('kaniko') {
@@ -64,6 +70,11 @@ pipeline {
                         """ 
                     }
                 }
+            }
+        }
+        stage('Scan Image') {
+            steps {
+
             }
         }
     }

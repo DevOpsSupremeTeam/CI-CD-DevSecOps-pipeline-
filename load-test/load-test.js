@@ -3,9 +3,9 @@ import { check, sleep } from 'k6';
 
 export let options = {
   stages: [
-    { duration: '30s', target: 200 },  // Tăng dần lên 200 user (Login rất nặng nên bắt đầu thấp hơn tí)
-    { duration: '1m', target: 400 },  // Duy trì 400 user login liên tục
-    { duration: '30s', target: 0 },    // Hạ nhiệt
+    { duration: '15s', target: 5 },  // Tăng dần lên 200 user (Login rất nặng nên bắt đầu thấp hơn tí)
+    { duration: '30s', target: 10 },  // Duy trì 400 user login liên tục
+    { duration: '15s', target: 0 },    // Hạ nhiệt
   ],
 };
 
@@ -16,7 +16,7 @@ export default function () {
   const payload = JSON.stringify({
     email: 'anvu5437@gmail.com', 
     password: '666666',
-  });
+  }); 
 
   const params = {
     headers: {
@@ -34,5 +34,4 @@ export default function () {
 
   // Nghỉ 1 giây giữa mỗi lần login để giả lập người dùng thật 
   // (Nếu muốn đánh sập nhanh hơn thì giảm xuống 0.1)
-  sleep(1); 
 }

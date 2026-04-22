@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 8003
 
-CMD ["npm", "start"]
+CMD ["node", "--require", "./instrumentation.js", "src/index.js"]
