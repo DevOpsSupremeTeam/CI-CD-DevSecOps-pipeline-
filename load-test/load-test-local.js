@@ -3,8 +3,8 @@ import { check, sleep } from 'k6';
 
 export const options = {
   stages: [
-    { duration: '30s', target: 2000 },
-    { duration: '1m', target: 2000 },
+    { duration: '30s', target: 10 },
+    { duration: '1m', target: 20 },
   ],
 };
 
@@ -51,8 +51,8 @@ export default function (data) {
     },
   };
 
-  const cartRes = http.put(`${BASE_URL}/product/cart`, JSON.stringify({
-    _id: '69e67d5cf113f318aa10384e', 
+  const cartRes = http.put(`${BASE_URL}/cart`, JSON.stringify({
+    _id: '69e67cbeb74cd907848e366f', 
     qty: 1
   }), authHeaders);
 

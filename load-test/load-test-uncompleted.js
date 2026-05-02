@@ -24,7 +24,7 @@ export default function () {
 
   // 2. Thêm vào giỏ hàng (Luồng xuyên suốt: Products -> RabbitMQ -> Customer/Shopping)
   // Giả sử product_id là một ID tồn tại trong DB của bạn
-  const cartRes = http.put(`${BASE_URL}/product/cart`, JSON.stringify({
+  const cartRes = http.put(`${BASE_URL}/cart`, JSON.stringify({
     _id: '69e67cbeb74cd907848e366f', // Thay bằng ID thật
     qty: 1
   }), authHeaders);

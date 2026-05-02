@@ -10,8 +10,8 @@ services:
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - MEMORY_MAX_TRACES=1000
-      - OTEL_TRACES_SAMPLER=traceidratio
-      - OTEL_TRACES_SAMPLER_ARG=0.1
+      - OTEL_TRACES_SAMPLER=parentbased_traceidratio
+      - OTEL_TRACES_SAMPLER_ARG=0.05
 
   nosql-db:
     image: mongo:latest
