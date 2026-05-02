@@ -36,15 +36,15 @@ ingress:
          - path: /customer(/|$)(.*)
            serviceName: customer-service 
            pathType: ImplementationSpecific
-           port: 8001
+           port: 80
          - path: /shopping(/|$)(.*)
            serviceName: shopping-service
            pathType: ImplementationSpecific
-           port: 8003
+           port: 80
          - path: /()(.*)
            serviceName: products-service
            pathType: ImplementationSpecific
-           port: 8002
+           port: 80
 
 service:
   port: 80
