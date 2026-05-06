@@ -3,6 +3,9 @@ source code for this pipeline:
 link for kaniko:
 https://oneuptime.com/blog/post/2026-02-08-how-to-use-docker-build-and-push-in-kubernetes-cicd/view
 
+Hướng dẫn cài đặt Cert manager: 
+
+
 mục tiêu sắp tới cho đồ án:
 1. tối ưu hóa pipeline trên 3 tiêu chí chính:
  - Hiệu suất cao
