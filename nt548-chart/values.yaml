@@ -7,7 +7,7 @@ customer:
   replicaCount: 2
   image:
     repository: catarena/customer
-    tag: 19
+    tag: 3
 products:
   replicaCount: 2
   image:
