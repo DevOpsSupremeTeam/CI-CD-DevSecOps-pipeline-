@@ -1,12 +1,22 @@
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci --only=production
+
 FROM node:20-alpine
 
 WORKDIR /app/shopping
 
-COPY package.json .
+ENV NODE_ENV=production
 
-RUN npm install
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 
-COPY . .
+COPY --chown=node:node . .
+
+USER node
 
 EXPOSE 8003
 
