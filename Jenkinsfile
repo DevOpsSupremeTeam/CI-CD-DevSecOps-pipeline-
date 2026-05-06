@@ -59,19 +59,28 @@ pipeline {
             steps {
                 container('kaniko') {
                     script {
-                        withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        // Sử dụng đúng ID credentials của bạn
+                        withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', 
+                                                         usernameVariable: 'DOCKER_USER', 
+                                                         passwordVariable: 'DOCKER_PASS')]) {
+                            
                             def fullImageName = "${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${IMAGE_TAG}"
                             
+                            echo "--- Đang khởi tạo cấu hình Docker cho Kaniko ---"
+                            
+                            // Sử dụng hàm viết file của Groovy để tránh lỗi nháy kép (quotes) và backslash trong lệnh sh
                             sh """
-                                echo "{\\\"auths\\\":{\\\"https://index.docker.io/v1/\\\":{\\\"auth\\\":\\\"\$(echo -n ${DOCKER_USER}:${DOCKER_PASS} | base64)\\\"}}}" > /kaniko/.docker/config.json
+                                echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"\$(echo -n \${DOCKER_USER}:\${DOCKER_PASS} | base64)\\"}}}" > /kaniko/.docker/config.json
                             """
 
                             echo "--- Kaniko đang build & push: ${fullImageName} ---"
 
                             sh """
-                            /kaniko/executor --context ${env.WORKSPACE}/${params.SERVICE_NAME} \
-                                --dockerfile ${env.WORKSPACE}/${params.SERVICE_NAME}/Dockerfile \
-                                --destination ${fullImageName}
+                                /kaniko/executor --context ${env.WORKSPACE}/${params.SERVICE_NAME} \
+                                    --dockerfile ${env.WORKSPACE}/${params.SERVICE_NAME}/Dockerfile \
+                                    --destination ${fullImageName} \
+                                    --cache=true \
+                                    --cache-repo=${params.DOCKERHUB_REPO}/kaniko-cache
                             """ 
                         }
                     }
