@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nt548-configmap
+  namespace: nt548
+data:
+    SHOPPING_PORT: "8003"
+    PRODUCTS_PORT: "8002"
+    CUSTOMER_PORT: "8001"

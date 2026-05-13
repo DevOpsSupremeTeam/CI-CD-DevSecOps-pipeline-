@@ -1,0 +1,44 @@
+import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export const options = {
+  stages: [
+    { duration: '30s', target: 20 }, // Warm up
+    { duration: '1m', target: 50 },  // Duy trì tải
+    { duration: '30s', target: 0 },  // Hạ tải
+  ],
+};
+
+const BASE_URL = 'http://localhost'; // Qua Nginx
+
+export default function () {
+  // 1. Đăng nhập để lấy Token (Customer Service xử lý)
+  const loginRes = http.post(`${BASE_URL}/customer/login`, JSON.stringify({
+    email: 'anvu5437@gmail.com', 
+    password: '666666',
+  }), { headers: { 'Content-Type': 'application/json' } });
+
+  check(loginRes, { 'Logged in': (r) => r.status === 200 });
+  const token = loginRes.json().token;
+  const authHeaders = { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } };
+
+  // 2. Thêm vào giỏ hàng (Luồng xuyên suốt: Products -> RabbitMQ -> Customer/Shopping)
+  // Giả sử product_id là một ID tồn tại trong DB của bạn
+  const cartRes = http.put(`${BASE_URL}/cart`, JSON.stringify({
+    _id: '69e67cbeb74cd907848e366f', // Thay bằng ID thật
+    qty: 1
+  }), authHeaders);
+
+  check(cartRes, { 'Added to cart': (r) => r.status === 200 });
+
+  sleep(1);
+
+  // 3. Đặt hàng (Luồng: Shopping -> RabbitMQ -> Customer)
+  const orderRes = http.post(`${BASE_URL}/shopping/order`, JSON.stringify({
+    txnNumber: "TXN123456789"
+  }), authHeaders);
+
+  check(orderRes, { 'Order placed': (r) => r.status === 200 });
+
+  sleep(1);
+}

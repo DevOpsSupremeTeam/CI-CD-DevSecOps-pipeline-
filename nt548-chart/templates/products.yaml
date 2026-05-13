@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: products-deployment
+  labels:
+    app: products
+spec:
+  replicas: {{ .Values.products.replicaCount }}
+  selector:
+    matchLabels:
+      app: products
+  template:
+    metadata:
+      labels:
+        app: products
+    spec:
+      containers:
+      - name: products
+        image: "{{- .Values.products.image.repository }}: {{- .Values.products.image.tag }}"
+        ports:
+        - containerPort: 8002
+        env:
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: nt548-configmap
+              key: PRODUCTS_PORT
+        envFrom:
+        - configMapRef:
+            name: nt548-configmap-general
+        - secretRef:
+            name: nt548-secret-general
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: products-service
+spec:
+  selector:
+    app: products
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8002

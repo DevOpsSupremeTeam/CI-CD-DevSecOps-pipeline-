@@ -1,8 +1,20 @@
-version: "3.8" # Nâng cấp version để hỗ trợ đầy đủ các tính năng healthcheck
+version: "3.8"
 
 services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.56
+    container_name: jaeger
+    ports:
+      - "16686:16686" 
+      - "4317:4317" 
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - MEMORY_MAX_TRACES=1000
+      - OTEL_TRACES_SAMPLER=parentbased_traceidratio
+      - OTEL_TRACES_SAMPLER_ARG=0.05
+
   nosql-db:
-    image: mongo:latest # Khuyên dùng bản chính thức để ổn định hơn
+    image: mongo:latest
     ports:
       - "27018:27017"
     container_name: nosql-db
@@ -15,19 +27,20 @@ services:
       retries: 5
 
   rabbitmq:
-    image: rabbitmq:3-management-alpine # Thêm bản management để có UI cổng 15672
+    image: rabbitmq:3-management-alpine
     container_name: rabbitmq
     environment:
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit frame_max 131072 -rabbit heartbeat 60
     ports:
       - '5672:5672'
-      - '15672:15672' # Truy cập UI: guest/guest
+      - '15672:15672'
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # --- MICROSERVICES ---
   products:
     build:
       dockerfile: Dockerfile
@@ -37,15 +50,17 @@ services:
       - "8002:8002"
     restart: always
     depends_on:
-      nosql-db:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      nosql-db: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      jaeger: { condition: service_started } # Đợi Jaeger khởi động
     volumes:
-      - ./products:/app/products # Map chính xác vào thư mục app
-      - /app/products/node_modules # Giữ lại node_modules trong container
+      - ./products:/app/products
+      - /app/products/node_modules
     env_file:
       - ./products/.env.dev
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_SERVICE_NAME=products
 
   shopping:
     build:
@@ -56,34 +71,42 @@ services:
       - "8003:8003"
     restart: always
     depends_on:
-      nosql-db:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      nosql-db: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      jaeger: { condition: service_started }
     volumes:
       - ./shopping:/app/shopping
       - /app/shopping/node_modules
     env_file:
       - ./shopping/.env.dev
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_SERVICE_NAME=shopping
 
   customer:
     build:
       dockerfile: Dockerfile
       context: ./customer
-    container_name: customer
-    ports:
-      - "8001:8001"
+    #container_name: customer
+    # ports:
+    #   - "8001:8001"
+    expose:
+      - "8001"
     restart: always
     depends_on:
-      nosql-db:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      nosql-db: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      jaeger: { condition: service_started }
     volumes:
       - ./customer:/app/customer
       - /app/customer/node_modules
     env_file:
       - ./customer/.env.dev
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_SERVICE_NAME=customer
+    deploy:
+      replicas: 3
 
   nginx-proxy:
     build:
