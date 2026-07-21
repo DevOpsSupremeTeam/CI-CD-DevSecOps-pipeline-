@@ -5,5 +5,6 @@ metadata:
   namespace: nt548
 data:
   EXCHANGE_NAME: 'ONLINE_STORE'
-  MONGODB_URI: 'mongodb://admin:password123@mongo-service:27017/admin?authSource=admin'
+  # MONGODB_URI nằm trong Secret nt548-secret-general (xem k8s-yaml/secret-general.template.yaml)
+  # vì chuỗi kết nối có chứa mật khẩu — không để trong ConfigMap.
   MSG_QUEUE_URL: 'amqp://rabbitmq-service'

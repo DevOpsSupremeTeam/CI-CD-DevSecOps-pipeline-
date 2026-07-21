@@ -157,5 +157,3 @@ k6 run load-test/load-test.js
 - Triển khai hoàn toàn trên hạ tầng Cloud (AWS).
 - Tự động hóa hạ tầng bằng Infrastructure as Code (Terraform, Ansible).
 
----
-*Dự án được phát triển trong khuôn khổ môn học NT548 - Chuyên đề nâng cao về Devops.*
