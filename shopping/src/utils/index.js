@@ -9,7 +9,6 @@ const {
   MSG_QUEUE_URL,
 } = require("../config");
 
-//Utility functions
 module.exports.GenerateSalt = async () => {
   return await bcrypt.genSalt();
 };
@@ -56,16 +55,23 @@ module.exports.FormateData = (data) => {
   }
 };
 
-//Message Broker
-
 module.exports.CreateChannel = async () => {
-  try {
-    const connection = await amqplib.connect(MSG_QUEUE_URL);
-    const channel = await connection.createChannel();
-    await channel.assertQueue(EXCHANGE_NAME, "direct", { durable: true });
-    return channel;
-  } catch (err) {
-    throw err;
+  const maxRetries = 10;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const connection = await amqplib.connect(MSG_QUEUE_URL);
+      const channel = await connection.createChannel();
+      await channel.assertQueue(EXCHANGE_NAME, "direct", { durable: true });
+      console.log("RabbitMQ channel ready");
+      return channel;
+    } catch (err) {
+      if (attempt === maxRetries) throw err;
+      const delay = Math.min(3000 * attempt, 15000);
+      console.log(
+        `RabbitMQ chưa sẵn sàng (lần ${attempt}/${maxRetries}): ${err.message}. Thử lại sau ${delay}ms`
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
   }
 };
 

@@ -19,10 +19,10 @@ spec:
         image: "{{- .Values.customer.image.repository }}: {{- .Values.customer.image.tag }}"
         resources:
           requests:
-            cpu: "250m"       # 0.02 Core - Chỉ đủ để duy trì nhịp thở
-            memory: "512Mi"   # Rất ít, đủ để Node.js khởi động
+            cpu: "250m"       
+            memory: "512Mi"   
           limits:
-            cpu: "500m"      # Giới hạn cực thấp để tránh treo cả máy ảo Azure
+            cpu: "500m"   
             memory: "1024Mi"
         ports:
         - containerPort: 8001
@@ -37,6 +37,26 @@ spec:
             name: nt548-configmap-general
         - secretRef:
             name: nt548-secret-general
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          periodSeconds: 3
+          failureThreshold: 40  
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8001
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
 ---
 apiVersion: v1
 kind: Service

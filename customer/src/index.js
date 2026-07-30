@@ -14,7 +14,6 @@ const StartServer = async() => {
 
     await expressApp(app, channel);
     
-
     app.listen(PORT, () => {
           console.log(`listening to port ${PORT}`);
     })
@@ -29,4 +28,7 @@ const StartServer = async() => {
 
 }
 
-StartServer();
+StartServer().catch((err) => {
+    console.log("Không khởi động được server:", err);
+    process.exit(1);
+});

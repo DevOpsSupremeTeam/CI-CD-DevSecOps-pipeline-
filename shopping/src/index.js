@@ -21,4 +21,7 @@ const StartServer = async() => {
 
 }
 
-StartServer();
+StartServer().catch((err) => {
+    console.log("Không khởi động được server:", err);
+    process.exit(1);
+});
