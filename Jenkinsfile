@@ -49,11 +49,14 @@ pipeline {
             }
         }
 
-        // stage('Scan Source Code (SonarQube)') {
-        //     steps {
-                
-        //     }
-        // }
+        stage('Scan Source Code (SonarQube)') {
+            steps {
+                def scannerHome = tool 'SonarScanner';
+                withSonarQubeEnv() {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
+            }
+        }
 
         stage('Build & Push with Kaniko') {
             steps {
@@ -86,7 +89,7 @@ pipeline {
         }
         // stage('Scan Image') {
         //     steps {
-
+            
         //     }
         // }
     }
