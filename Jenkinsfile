@@ -54,8 +54,16 @@ pipeline {
                 script {
                     def scannerHome = tool 'SonarScanner'      // khớp tên ở Manage Jenkins -> Tools
                     withSonarQubeEnv('SonarQube') {            // khớp tên server ở Manage Jenkins -> System -> SonarQube servers
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=nt548 -Dsonar.sources=${params.SERVICE_NAME}"
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=DevSecOps -Dsonar.sources=${params.SERVICE_NAME}"
                     }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
