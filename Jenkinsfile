@@ -63,7 +63,7 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: false
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
@@ -97,11 +97,12 @@ pipeline {
                 }
             }
         }
-        // stage('Scan Image') {
-        //     steps {
-            
-        //     }
-        // }
+        stage('Scan Image') {
+            steps {
+                echo "--- Quét lỗ hổng image đã build ---"
+                sh "trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 ${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${env.IMAGE_TAG}"
+            }
+        }
     }
 
     post {
