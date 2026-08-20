@@ -33,7 +33,7 @@ pipeline {
                             sh 'npm audit --audit-level=high || true'
                             
                             echo "--- Đang chạy Unit Test ---"
-                            sh 'npm test'
+                            sh "npm test -- --coverage --collectCoverageFrom='src/**/*.js'"
                         }
                     }
                 }
@@ -54,7 +54,7 @@ pipeline {
                 script {
                     def scannerHome = tool 'SonarScanner'      // khớp tên ở Manage Jenkins -> Tools
                     withSonarQubeEnv('SonarQube') {            // khớp tên server ở Manage Jenkins -> System -> SonarQube servers
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=DevSecOps -Dsonar.sources=${params.SERVICE_NAME}"
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=DevSecOps -Dsonar.sources=${params.SERVICE_NAME} -Dsonar.javascript.lcov.reportPaths=${params.SERVICE_NAME}/coverage/lcov.info"
                     }
                 }
             }
