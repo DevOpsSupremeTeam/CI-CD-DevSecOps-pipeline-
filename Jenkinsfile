@@ -54,7 +54,7 @@ pipeline {
                 script {
                     def scannerHome = tool 'SonarScanner'      // khớp tên ở Manage Jenkins -> Tools
                     withSonarQubeEnv('SonarQube') {            // khớp tên server ở Manage Jenkins -> System -> SonarQube servers
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=DevSecOps -Dsonar.sources=${params.SERVICE_NAME} -Dsonar.javascript.lcov.reportPaths=${params.SERVICE_NAME}/coverage/lcov.info"
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=DevSecOps -Dsonar.sources=${params.SERVICE_NAME} -Dsonar.javascript.lcov.reportPaths=${params.SERVICE_NAME}/coverage/lcov.info -Dsonar.exclusions=**/coverage/**,**/node_modules/**"
                     }
                 }
             }
