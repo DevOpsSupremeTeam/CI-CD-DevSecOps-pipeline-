@@ -1,0 +1,16 @@
+title = "Gitleaks config - NT548 DevSecOps"
+
+# Dùng bộ rule mặc định của gitleaks rồi mở rộng allowlist bên dưới
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Bỏ qua file đã mã hoá / placeholder không phải secret thật"
+paths = [
+  # Sealed Secrets: ciphertext base64 entropy cao -> tránh báo nhầm
+  '''k8s-yaml/sealed-secret.*\.yaml''',
+  # Template secret chỉ chứa CHANGE_ME_* placeholder
+  '''k8s-yaml/secret.*\.template\.yaml''',
+  # package-lock chứa integrity hash (sha512-...) dễ bị nhận nhầm là secret
+  '''.*package-lock\.json''',
+]

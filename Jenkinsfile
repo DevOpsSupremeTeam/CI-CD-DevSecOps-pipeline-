@@ -21,6 +21,17 @@ pipeline {
             }
         }
 
+        stage('Secret Scan (Gitleaks)') {
+            steps {
+                container('gitleaks') {
+                    echo "--- Quét secret bị lộ trong source ---"
+                    // --no-git: quét cây thư mục hiện tại (không đào lịch sử git)
+                    // --redact: KHÔNG in giá trị secret ra log; --exit-code 1: có secret thì fail build
+                    sh "gitleaks detect --source . --no-git --redact --exit-code 1 -v"
+                }
+            }
+        }
+
         stage('Nodejs Audit & Unit Test') {
             steps {
                 container('nodejs') {
@@ -78,13 +89,10 @@ pipeline {
                             
                             def fullImageName = "${params.DOCKERHUB_REPO}/${params.SERVICE_NAME}:${env.IMAGE_TAG}"
                             
-                            // 1. Tạo config.json an toàn hơn bằng cách dùng nháy đơn cho sh để tránh cảnh báo bảo mật
                             sh 'echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"\$(echo -n ${DOCKER_USER}:${DOCKER_PASS} | base64)\\"}}}" > /kaniko/.docker/config.json'
 
                             echo "--- Kaniko đang build & push: ${fullImageName} ---"
 
-                            // 2. Sử dụng dấu nháy đơn cho toàn bộ block sh và dùng biến môi trường trực tiếp của Shell
-                            // Chúng ta bọc các đường dẫn trong nháy kép để xử lý khoảng trắng (nếu có)
                             sh '''
                                 /kaniko/executor --context "${WORKSPACE}/${SERVICE_NAME}" \
                                     --dockerfile "${WORKSPACE}/${SERVICE_NAME}/Dockerfile" \

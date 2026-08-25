@@ -27,3 +27,10 @@ spec:
     - sleep
     args:
     - 9999999
+
+  # 4. Container cho Gitleaks: Quét secret bị lộ trong source
+  - name: gitleaks
+    image: zricethezav/gitleaks:latest   # nên pin version cụ thể khi ổn định
+    command:
+    - cat
+    tty: true
