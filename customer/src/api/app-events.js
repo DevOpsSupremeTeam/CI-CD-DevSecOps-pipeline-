@@ -9,11 +9,8 @@ module.exports = (app) => {
 
         //handle subscribe events
         service.SubscribeEvents(payload);
-
         console.log("============= Shopping ================");
         console.log(payload);
         res.json(payload);
-
     });
-
 }

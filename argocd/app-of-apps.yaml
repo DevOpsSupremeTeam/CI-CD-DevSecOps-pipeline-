@@ -1,0 +1,21 @@
+# App-of-apps: Application "cha" — không deploy workload, mà tạo các
+# Application con nằm trong folder argocd/apps/.
+# Apply/sync file này 1 lần -> ArgoCD tự tạo nt548-staging + nt548-prod.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nt548-app-of-apps
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/DevOpsSupremeTeam/CI-CD-DevSecOps-pipeline-.git
+    targetRevision: main
+    path: argocd/apps          # chỉ chứa các Application con (không chứa chính file này)
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd          # các Application sống trong namespace argocd
+  syncPolicy:
+    automated:                 # CHA auto-sync -> tự tạo/cập nhật danh sách app con
+      prune: true
+      selfHeal: true

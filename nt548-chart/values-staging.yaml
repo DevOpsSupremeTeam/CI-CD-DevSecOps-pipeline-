@@ -1,0 +1,30 @@
+# ============================================================
+# Override cho môi trường STAGING (layer lên values.yaml)
+# ============================================================
+
+# Staging chạy ít replica để tiết kiệm tài nguyên
+shopping:
+  replicaCount: 1
+customer:
+  replicaCount: 1
+products:
+  replicaCount: 1
+
+ingress:
+  # Staging dùng host riêng, không gắn TLS prod
+  tls: []
+  hosts:
+    - host: staging.cookial.site
+      paths:
+        - path: /customer(/|$)(.*)
+          serviceName: customer-service
+          pathType: ImplementationSpecific
+          port: 80
+        - path: /shopping(/|$)(.*)
+          serviceName: shopping-service
+          pathType: ImplementationSpecific
+          port: 80
+        - path: /()(.*)
+          serviceName: products-service
+          pathType: ImplementationSpecific
+          port: 80

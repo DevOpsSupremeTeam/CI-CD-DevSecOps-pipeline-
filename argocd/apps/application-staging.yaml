@@ -1,0 +1,22 @@
+# App con: deploy nt548-chart lên môi trường STAGING.
+# Sync MANUAL (chưa có khối automated) -> workload chỉ deploy khi bạn bấm Sync.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nt548-staging
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/DevOpsSupremeTeam/CI-CD-DevSecOps-pipeline-.git
+    targetRevision: main
+    path: nt548-chart
+    helm:
+      valueFiles:
+        - values-staging.yaml   # tương đối so với path nt548-chart/
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nt548-staging
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true    # tự tạo namespace nt548-staging khi sync

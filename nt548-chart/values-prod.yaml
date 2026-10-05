@@ -1,0 +1,29 @@
+# ============================================================
+# Override cho môi trường PRODUCTION (layer lên values.yaml)
+# ============================================================
+
+# Production chạy đủ replica
+shopping:
+  replicaCount: 2
+customer:
+  replicaCount: 2
+products:
+  replicaCount: 2
+
+ingress:
+  # Production dùng domain chính + TLS (TLS giữ theo values.yaml mặc định)
+  hosts:
+    - host: cookial.site
+      paths:
+        - path: /customer(/|$)(.*)
+          serviceName: customer-service
+          pathType: ImplementationSpecific
+          port: 80
+        - path: /shopping(/|$)(.*)
+          serviceName: shopping-service
+          pathType: ImplementationSpecific
+          port: 80
+        - path: /()(.*)
+          serviceName: products-service
+          pathType: ImplementationSpecific
+          port: 80
