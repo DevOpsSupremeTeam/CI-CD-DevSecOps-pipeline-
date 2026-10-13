@@ -19,11 +19,11 @@ spec:
         image: "{{- .Values.shopping.image.repository }}: {{- .Values.shopping.image.tag }}"
         resources:
           requests:
-            cpu: "250m"
-            memory: "512Mi"
+            cpu: "100m"
+            memory: "192Mi"
           limits:
             cpu: "500m"
-            memory: "1024Mi"
+            memory: "512Mi"
         ports:
         - containerPort: 8003
         env:
