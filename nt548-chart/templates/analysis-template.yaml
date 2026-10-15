@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: nt548-canary-analysis
+spec:
+  args:
+  - name: app
+  - name: canary-hash
+  metrics:
+  # Canary pod phải đang được Prometheus scrape (up == 1).
+  # Không có series -> coi là fail: không đo được thì không được promote.
+  - name: canary-up
+    interval: 15s
+    count: 4
+    failureLimit: 1
+    successCondition: len(result) > 0 && result[0] == 1
+    provider:
+      prometheus:
+        address: http://prometheus-service.{{ .Release.Namespace }}.svc:9090
+        query: |
+          min(up{app="{{`{{args.app}}`}}", rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"})
+
+  # Tỉ lệ 5xx của riêng pod canary.
+  # Chưa có traffic -> result rỗng -> không tính là lỗi (chỉ fail khi vượt ngưỡng).
+  - name: canary-error-rate
+    interval: 15s
+    count: 4
+    failureLimit: 1
+    successCondition: len(result) == 0 || isNaN(result[0]) || result[0] <= {{ .Values.rollout.analysis.maxErrorRate }}
+    provider:
+      prometheus:
+        address: http://prometheus-service.{{ .Release.Namespace }}.svc:9090
+        query: |
+          sum(rate(http_requests_total{app="{{`{{args.app}}`}}", rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}", status=~"5.."}[{{ .Values.rollout.analysis.window }}]))
+          /
+          sum(rate(http_requests_total{app="{{`{{args.app}}`}}", rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[{{ .Values.rollout.analysis.window }}]))
+
+  # p95 latency của riêng pod canary.
+  - name: canary-p95-latency
+    interval: 15s
+    count: 4
+    failureLimit: 1
+    successCondition: len(result) == 0 || isNaN(result[0]) || result[0] <= {{ .Values.rollout.analysis.maxP95Seconds }}
+    provider:
+      prometheus:
+        address: http://prometheus-service.{{ .Release.Namespace }}.svc:9090
+        query: |
+          histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{app="{{`{{args.app}}`}}", rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[{{ .Values.rollout.analysis.window }}])))

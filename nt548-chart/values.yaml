@@ -2,17 +2,17 @@ shopping:
   replicaCount: 2
   image:
     repository: catarena/shopping
-    tag: "v2"
+    tag: "v3"
 customer:
   replicaCount: 2
   image:
     repository: catarena/customer
-    tag: "v2"
+    tag: "v3"
 products:
   replicaCount: 2
   image:
     repository: catarena/products
-    tag: "v2"
+    tag: "v3"
 
 # Cấu hình Ingress
 ingress:
@@ -48,3 +48,18 @@ ingress:
 
 service:
   port: 80
+
+# Prometheus bản nhẹ để AnalysisTemplate của canary query
+prometheus:
+  enabled: true
+  image: prom/prometheus:v2.54.1
+
+# Ngưỡng phân tích canary (dùng chung cả 3 service)
+rollout:
+  analysis:
+    # tỉ lệ request 5xx tối đa của pod canary (0.05 = 5%)
+    maxErrorRate: "0.05"
+    # p95 latency tối đa của pod canary (giây)
+    maxP95Seconds: "0.8"
+    # cửa sổ tính rate
+    window: 1m

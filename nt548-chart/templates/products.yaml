@@ -1,11 +1,26 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
-  name: products-deployment
+  name: products-rollout
   labels:
     app: products
 spec:
   replicas: {{ .Values.products.replicaCount }}
+  strategy:
+    canary:
+      steps:
+      - setWeight: 25
+      - analysis:
+          templates:
+          - templateName: nt548-canary-analysis
+          args:
+          - name: app
+            value: products
+          - name: canary-hash
+            valueFrom:
+              podTemplateHash: Latest
+      - setWeight: 50
+      - pause: {duration: 30s}
   selector:
     matchLabels:
       app: products
@@ -13,6 +28,9 @@ spec:
     metadata:
       labels:
         app: products
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8002"
     spec:
       containers:
       - name: products

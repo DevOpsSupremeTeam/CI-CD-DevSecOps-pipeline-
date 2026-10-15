@@ -5,11 +5,14 @@ const mongoose = require("mongoose");
 const { products, appEvents } = require("./api");
 
 const { CreateChannel } = require("./utils");
+const { metricsMiddleware, metricsHandler } = require("./metrics");
 
 module.exports = async (app) => {
   app.use(express.json());
   app.use(cors());
   app.use(express.static(__dirname + "/public"));
+  app.use(metricsMiddleware);
+  app.get("/metrics", metricsHandler);
 
   app.get("/health", (req, res) => res.status(200).json({ status: "ok" }));
   app.get("/ready", (req, res) => {
