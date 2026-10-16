@@ -18,7 +18,7 @@ spec:
             value: products
           - name: canary-hash
             valueFrom:
-              podTemplateHash: Latest
+              podTemplateHashValue: Latest
       - setWeight: 50
       - pause: {duration: 30s}
   selector:

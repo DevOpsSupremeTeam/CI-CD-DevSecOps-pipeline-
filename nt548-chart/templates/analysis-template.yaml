@@ -11,7 +11,7 @@ spec:
   # Không có series -> coi là fail: không đo được thì không được promote.
   - name: canary-up
     interval: 15s
-    count: 4
+    count: 6
     failureLimit: 1
     successCondition: len(result) > 0 && result[0] == 1
     provider:
@@ -24,7 +24,7 @@ spec:
   # Chưa có traffic -> result rỗng -> không tính là lỗi (chỉ fail khi vượt ngưỡng).
   - name: canary-error-rate
     interval: 15s
-    count: 4
+    count: 6
     failureLimit: 1
     successCondition: len(result) == 0 || isNaN(result[0]) || result[0] <= {{ .Values.rollout.analysis.maxErrorRate }}
     provider:
@@ -38,7 +38,7 @@ spec:
   # p95 latency của riêng pod canary.
   - name: canary-p95-latency
     interval: 15s
-    count: 4
+    count: 6
     failureLimit: 1
     successCondition: len(result) == 0 || isNaN(result[0]) || result[0] <= {{ .Values.rollout.analysis.maxP95Seconds }}
     provider:
